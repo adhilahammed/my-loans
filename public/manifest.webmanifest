@@ -1,0 +1,17 @@
+{
+  "name": "My Loans — Personal Debt Tracker",
+  "short_name": "My Loans",
+  "description": "Track your borrowed and repaid amounts easily on iPhone.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F2F2F7",
+  "theme_color": "#FFFFFF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
