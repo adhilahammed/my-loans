@@ -18,6 +18,7 @@ import {
   clearAllData,
 } from './utils/storage';
 import { calculateOverallSummary } from './utils/calculations';
+import { downloadLoanStatementDocument } from './utils/report';
 import { Header } from './components/Header';
 import { BottomNavigation } from './components/BottomNavigation';
 import { LoansPage } from './pages/LoansPage';
@@ -26,6 +27,7 @@ import { AddEditLenderPage } from './pages/AddEditLenderPage';
 import { TransactionFormPage } from './pages/TransactionFormPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { Download, Check } from 'lucide-react';
 import './styles.css';
 
 export function App() {
@@ -34,6 +36,25 @@ export function App() {
     loadTransactions()
   );
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleDownloadStatement = () => {
+    const res = downloadLoanStatementDocument(
+      lenders,
+      transactions,
+      settings.currency
+    );
+    if (res.success) {
+      setToastMessage(
+        res.count === 0
+          ? 'Statement downloaded'
+          : `Downloaded statement (${res.count} lender${res.count === 1 ? '' : 's'})`
+      );
+      setTimeout(() => {
+        setToastMessage(null);
+      }, 2600);
+    }
+  };
 
   // Navigation route parsing from hash
   const parseRouteFromHash = useCallback((): Route => {
@@ -273,7 +294,23 @@ export function App() {
   const renderHeader = () => {
     switch (route.view) {
       case 'loans':
-        return <Header title="My Loans" />;
+        return (
+          <Header
+            title="My Loans"
+            rightAction={
+              <button
+                type="button"
+                className="header-btn header-icon-btn"
+                onClick={handleDownloadStatement}
+                title="Download statement (left to pay)"
+                aria-label="Download statement"
+                id="header-download-btn"
+              >
+                <Download size={21} strokeWidth={2.2} />
+              </button>
+            }
+          />
+        );
       case 'history':
         return <Header title="Transaction History" />;
       case 'settings':
@@ -505,6 +542,14 @@ export function App() {
     <div className="app-container">
       {/* Top iOS Header */}
       {renderHeader()}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast-banner" role="status" aria-live="polite">
+          <Check size={16} color="#34D399" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* Main Screen Content */}
       <main className="app-content">{renderContent()}</main>
